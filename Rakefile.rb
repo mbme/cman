@@ -6,5 +6,5 @@ require "bundler/gem_tasks"
 # end
 
 task :run do
-  ruby 'lib/cman.rb'
+  ruby 'bin/cman'
 end

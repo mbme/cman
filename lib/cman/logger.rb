@@ -1,5 +1,5 @@
 # Simple logger
-module MB
+module Cman
   # logger instance
   class Logger
     @@level = 1
