@@ -1,12 +1,17 @@
 #!/usr/bin/env ruby
 
-require 'cman/logger'
+require 'cman'
 
-log = Cman::Logger.new 'main'
+command = ARGV[0]
+unless Cman.respond_to?(command)
+  log.error "wrong command '#{command}'"
 
-if __FILE__ != $PROGRAM_NAME
-  log.fatal 'must be run as a program'
+  methods = Cman.methods(false).map { |s| s.to_s }.join ', '
+  log.error "must be one of #{methods}"
+
   return 1
 end
 
-log.info 'TEST!'
+# TODO: handle command
+puts 'done'
+Cman.status
