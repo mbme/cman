@@ -29,6 +29,7 @@ module Cman
 
     def error(msg)
       print 3, msg
+      exit 1
     end
 
     # setting or getting logger level

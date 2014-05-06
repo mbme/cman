@@ -2,25 +2,41 @@ require 'cman/logger'
 
 # main commands
 module Cman
-  @log = Cman::Logger.new 'cman'
+  # command executor
+  class Executor
+    @@commands = %w(add, remove, nstall, uninstall, status)
 
-  def self.add(repo, *args)
-    @log.info 'adding'
-  end
+    def initialize(command)
+      @log = Cman::Logger.new 'executor'
 
-  def self.remove(repo, *args)
-    @log.info 'removing'
-  end
+      unless @@commands.include? command
+        fail "wrong command #{command}, valid are #{@@commands.join ', '}"
+      end
+    end
 
-  def self.install(repo, *args)
-    @log.info 'installing'
-  end
+    def execute(*args)
+    end
 
-  def self.uninstall(repo, *args)
-    @log.info 'uninstalling'
-  end
+    private
 
-  def self.status(repo = nil)
-    @log.info 'status'
+    def add(repo, *args)
+      @log.info 'adding'
+    end
+
+    def remove(repo, *args)
+      @log.info 'removing'
+    end
+
+    def install(repo, *args)
+      @log.info 'installing'
+    end
+
+    def uninstall(repo, *args)
+      @log.info 'uninstalling'
+    end
+
+    def status(repo = nil)
+      @log.info 'status'
+    end
   end
 end
