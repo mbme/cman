@@ -1,6 +1,8 @@
 require 'json'
 require 'fileutils'
+require 'cman/record'
 
+# Here we have repository wrapper.
 module Cman
   @@config = { 'base_dir' => '/home/test/repository' }
 
@@ -44,16 +46,33 @@ module Cman
       end
     end
 
-    def remove
+    def delete
       exists? || fail("can't remove repository #{@name}: doesn't exists")
       FileUtils.rm_r path
     end
 
-    def add(filepath)
+    def add_record(filepath)
+      rec = Cman::Record.new(filepath, id: free_id, repository: self)
+
+      @records.include?(rec) &&
+        fail("repository #{@name} already contains #{filepath}")
+
+      rec.name = File.basename filepath
+
+      FileUtils.cp filepath, rec.repo_path
+
+      @records << rec
+      rec
     end
 
     def to_json
       JSON.pretty_generate('name' => @name, 'records' => @records)
+    end
+
+    private
+
+    def free_id
+      (@records.max_by(&:id) || -1) + 1
     end
   end
 end

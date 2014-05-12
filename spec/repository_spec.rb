@@ -8,6 +8,11 @@ describe Cman::Repository do
     Cman::Repository.new name
   end
 
+  def touch(file)
+    FileUtils.mkdir_p File.dirname file
+    File.open(file, 'w') { |f| f.write 'TEST' }
+  end
+
   before :each do
     FileUtils.mkdir_p base_dir
   end
@@ -70,7 +75,7 @@ describe Cman::Repository do
     repo.create
     repo.exists?.should be_true
 
-    repo.remove
+    repo.delete
     repo.exists?.should be_false
   end
 
@@ -80,6 +85,42 @@ describe Cman::Repository do
 
     repo.exists?.should be_false
 
-    expect { repo.remove }.to raise_error
+    expect { repo.delete }.to raise_error
+  end
+
+  it 'can add new file' do
+    repo = new 'i3'
+
+    file_path = '/test/file'
+    touch file_path
+
+    rec = repo.add_record file_path
+
+    rec.repository.should eq repo
+    rec.id.should eq 0
+    rec.name.should eq File.basename file_path
+
+    File.file?(rec.repo_path).should be_true
+  end
+
+  it 'cannot add same file twice' do
+    repo = new 'i3'
+
+    file_path = '/test/file'
+    touch file_path
+
+    # we can add file first time
+    repo.add_record(file_path).should_not be_nil
+
+    # but cannot add it second time
+    expect { repo.add_record file_path }.to raise_error
+  end
+
+  it 'can add dir with multiple files and dirs' do
+    pending
+  end
+
+  it 'can add files with the same name' do
+    pending
   end
 end

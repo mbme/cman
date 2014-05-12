@@ -7,7 +7,7 @@ module Cman
     @@commands = %w(add, remove, nstall, uninstall, status)
 
     def initialize(command)
-      @log = Cman::Logger.new 'executor'
+      @log = Logger.new 'executor'
 
       unless @@commands.include? command
         fail "wrong command #{command}, valid are #{@@commands.join ', '}"
