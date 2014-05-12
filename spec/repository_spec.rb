@@ -117,7 +117,38 @@ describe Cman::Repository do
   end
 
   it 'can add dir with multiple files and dirs' do
-    pending
+    repo = new 'i3'
+
+    base_dir = '/test/test-dir'
+
+    f1 = 'dir/other'
+    f1_path = "#{base_dir}/#{f1}"
+    touch f1_path
+
+    l1 = 'dir/symlink'
+    File.symlink f1_path, "#{base_dir}/#{l1}"
+
+    f2 = 'file'
+    touch "#{base_dir}/#{f2}"
+
+    d1 = 'empty-dir'
+    FileUtils.mkdir "#{base_dir}/#{d1}"
+
+    rec = repo.add_record base_dir
+
+    rec.repository.should eq repo
+    rec.id.should eq 0
+    rec.name.should eq File.basename base_dir
+
+    Dir.exist?(rec.repo_path).should be_true
+    File.exist?(File.join(repo.path, rec.name, f1)).should be_true
+    File.exist?(File.join(repo.path, rec.name, f2)).should be_true
+
+    # we should skip empty dirs
+    Dir.exist?(File.join(repo.path, rec.name, d1)).should be_false
+
+    # we should skip symlinks
+    File.symlink?(File.join(repo.path, rec.name, l1)).should be_false
   end
 
   it 'can add files with the same name' do

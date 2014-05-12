@@ -1,6 +1,7 @@
 require 'json'
 require 'fileutils'
 require 'cman/record'
+require 'pathname'
 
 # Here we have repository wrapper.
 module Cman
@@ -59,7 +60,7 @@ module Cman
 
       rec.name = File.basename filepath
 
-      FileUtils.cp filepath, rec.repo_path
+      copy_file filepath, rec.repo_path
 
       @records << rec
       rec
@@ -70,6 +71,31 @@ module Cman
     end
 
     private
+
+    def copy_file(src, dst)
+      if File.file?(src)
+        FileUtils.cp src, dst
+      elsif File.directory?(src)
+        copy_dir src, dst
+      end
+    end
+
+    def copy_dir(src, dst)
+      dst_path = Pathname.new dst
+      src_path = Pathname.new src
+
+      Dir.glob("#{src}/**/*") do |file|
+        next unless File.file? file
+
+        file_dst =  dst_path.join(
+          Pathname.new(file).relative_path_from(src_path)
+        ).to_path
+
+        puts file_dst
+        FileUtils.mkdir_p File.dirname(file_dst)
+        FileUtils.cp file, file_dst
+      end
+    end
 
     def free_id
       (@records.max_by(&:id) || -1) + 1
