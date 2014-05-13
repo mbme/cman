@@ -15,6 +15,10 @@ module Cman
   class Repository
     REPO_CONFIG = '.cman'
 
+    def self.read(name)
+      Repository.new name
+    end
+
     def initialize(name)
       @name = name
       @records = []
@@ -35,10 +39,14 @@ module Cman
     def create
       exists? && fail("can't create repository #{@name}: already exists")
 
-      Dir.mkdir path
+      FileUtils.mkdir path
 
       # create empty config file
       save
+    end
+
+    def size
+      @records.length
     end
 
     def save
@@ -63,6 +71,7 @@ module Cman
       copy_file filepath, rec.repo_path
 
       @records << rec
+      save
       rec
     end
 
@@ -87,11 +96,9 @@ module Cman
       Dir.glob("#{src}/**/*") do |file|
         next unless File.file? file
 
-        file_dst =  dst_path.join(
-          Pathname.new(file).relative_path_from(src_path)
-        ).to_path
+        relpath = Pathname.new(file).relative_path_from(src_path)
+        file_dst =  dst_path.join(relpath).to_path
 
-        puts file_dst
         FileUtils.mkdir_p File.dirname(file_dst)
         FileUtils.cp file, file_dst
       end

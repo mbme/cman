@@ -26,7 +26,7 @@ module Cman
       @path == other.path
     end
 
-    def to_json
+    def to_json(*_)
       JSON.pretty_generate('id' => @id, 'path' => @path, 'owner' => @owner)
     end
   end

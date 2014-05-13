@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Cman::Repository do
   include FakeFS::SpecHelpers
 
-  base_dir = Cman.config['base_dir']
+  BASE_DIR = Cman.config['base_dir']
   def new(name)
     Cman::Repository.new name
   end
@@ -13,13 +13,21 @@ describe Cman::Repository do
     File.open(file, 'w') { |f| f.write 'TEST' }
   end
 
+  def cat(file)
+    puts "\n\n--- File #{file}:"
+    File.readlines(file).each do |line|
+      puts line
+    end
+    puts "\n\n--- #{file} ends here\n\n"
+  end
+
   before :each do
-    FileUtils.mkdir_p base_dir
+    FileUtils.mkdir_p BASE_DIR
   end
 
   it "exists when it's dir exists" do
     name = 'repo1'
-    FileUtils.mkdir File.join(base_dir, name)
+    FileUtils.mkdir File.join(BASE_DIR, name)
 
     repo = new name
 
@@ -36,14 +44,14 @@ describe Cman::Repository do
     name = 'i3'
     repo = new name
 
-    repo.path.should eq File.join(base_dir, name)
+    repo.path.should eq File.join(BASE_DIR, name)
   end
 
   it 'correctly builds repo config path' do
     name = 'i3'
     repo = new name
 
-    expected_path = File.join(base_dir, name, Cman::Repository::REPO_CONFIG)
+    expected_path = File.join(BASE_DIR, name, Cman::Repository::REPO_CONFIG)
     repo.config_path.should eq expected_path
   end
 
@@ -62,7 +70,7 @@ describe Cman::Repository do
 
   it 'cannot be created if already exists' do
     name = 'i3'
-    FileUtils.mkdir File.join(base_dir, name)
+    FileUtils.mkdir File.join(BASE_DIR, name)
     repo = new name
 
     expect { repo.create }.to raise_error
@@ -80,8 +88,7 @@ describe Cman::Repository do
   end
 
   it "cannot be removed if doesn't exists" do
-    name = 'i3'
-    repo = new name
+    repo = new 'i3'
 
     repo.exists?.should be_false
 
@@ -90,6 +97,7 @@ describe Cman::Repository do
 
   it 'can add new file' do
     repo = new 'i3'
+    repo.create
 
     file_path = '/test/file'
     touch file_path
@@ -101,10 +109,12 @@ describe Cman::Repository do
     rec.name.should eq File.basename file_path
 
     File.file?(rec.repo_path).should be_true
+    File.file?(repo.config_path).should be_true
   end
 
   it 'cannot add same file twice' do
     repo = new 'i3'
+    repo.create
 
     file_path = '/test/file'
     touch file_path
@@ -118,6 +128,7 @@ describe Cman::Repository do
 
   it 'can add dir with multiple files and dirs' do
     repo = new 'i3'
+    repo.create
 
     base_dir = '/test/test-dir'
 
@@ -149,6 +160,19 @@ describe Cman::Repository do
 
     # we should skip symlinks
     File.symlink?(File.join(repo.path, rec.name, l1)).should be_false
+  end
+
+  it 'can be deserialized from config file' do
+    file_path = '/test/file'
+    touch file_path
+
+    repo_name = 'i3'
+    repo = new repo_name
+    repo.create
+    repo.add_record file_path
+
+    repo = Cman::Repository.read repo_name
+    repo.size.should eq 1
   end
 
   it 'can add files with the same name' do
