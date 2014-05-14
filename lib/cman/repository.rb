@@ -16,7 +16,7 @@ module Cman
     REPO_CONFIG = '.cman'
 
     def self.read(name)
-      Repository.new name
+      Repository.new(name).parse_json
     end
 
     def initialize(name)
@@ -79,6 +79,11 @@ module Cman
       JSON.pretty_generate('name' => @name, 'records' => @records)
     end
 
+    def parse_json
+      hash = JSON.parse File.read(config_path)
+      parse hash
+    end
+
     private
 
     def copy_file(src, dst)
@@ -106,6 +111,12 @@ module Cman
 
     def free_id
       (@records.max_by(&:id) || -1) + 1
+    end
+
+    def parse(hash)
+      @name = hash['name']
+      @records = hash['records'].map { |item| Record.parse item }
+      self
     end
   end
 end

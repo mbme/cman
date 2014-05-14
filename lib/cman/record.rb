@@ -27,7 +27,19 @@ module Cman
     end
 
     def to_json(*_)
-      JSON.pretty_generate('id' => @id, 'path' => @path, 'owner' => @owner)
+      JSON.pretty_generate(
+        'id' => @id,
+        'path' => @path,
+        'owner' => @owner,
+        'name' => @name
+      )
+    end
+
+    def self.parse(hash)
+      rec = Record.new hash['path'], id: hash['id']
+      rec.name = hash['name']
+      rec.owner = hash['owner']
+      rec
     end
   end
 end
