@@ -70,9 +70,10 @@ describe Cman::Repository do
 
   it 'cannot be created if already exists' do
     name = 'i3'
-    FileUtils.mkdir File.join(BASE_DIR, name)
     repo = new name
+    repo.create
 
+    repo = new name
     expect { repo.create }.to raise_error
   end
 
