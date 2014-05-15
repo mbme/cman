@@ -15,6 +15,8 @@ module Cman
   class Repository
     REPO_CONFIG = '.cman'
 
+    attr_reader :records
+
     def self.read(name)
       Repository.new(name).parse_json
     end
@@ -61,18 +63,23 @@ module Cman
     end
 
     def add_record(filepath)
-      rec = Cman::Record.new(filepath, id: free_id, repository: self)
+      rec = Cman::Record.new(
+        filepath, id: free_id, repository: self, name: File.basename(filepath)
+      )
 
       @records.include?(rec) &&
         fail("repository #{@name} already contains #{filepath}")
 
-      rec.name = File.basename filepath
-
+      rename_file_with_same_name File.basename(filepath)
       copy_file filepath, rec.repo_path
-
       @records << rec
+
       save
       rec
+    end
+
+    def get_record(id)
+      @records.find { |rec| rec.id == id }
     end
 
     def to_json
@@ -85,6 +92,18 @@ module Cman
     end
 
     private
+
+    def rename_file_with_same_name(name)
+      recs = @records.select { |rec| rec.repo_file == name }
+      if recs.length > 1
+        fail("too many files in repository #{@name} "\
+             " with name #{name}: #{recs.length}")
+      elsif recs.length == 1
+        rec = recs[0]
+        FileUtils.mv rec.repo_path,
+                     File.join(path, Cman::Record.long_repo_file(rec))
+      end
+    end
 
     def copy_file(src, dst)
       if File.file?(src)
@@ -110,7 +129,13 @@ module Cman
     end
 
     def free_id
-      (@records.max_by(&:id) || -1) + 1
+      rec = @records.max_by(&:id)
+
+      if rec
+        rec.id + 1
+      else
+        0
+      end
     end
 
     def parse(hash)

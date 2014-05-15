@@ -8,9 +8,11 @@ describe Cman::Repository do
     Cman::Repository.new name
   end
 
-  def touch(file)
-    FileUtils.mkdir_p File.dirname file
-    File.open(file, 'w') { |f| f.write 'TEST' }
+  def touch(*files)
+    files.each do |file|
+      FileUtils.mkdir_p File.dirname file
+      File.open(file, 'w') { |f| f.write 'TEST' }
+    end
   end
 
   def cat(file)
@@ -170,13 +172,40 @@ describe Cman::Repository do
     repo_name = 'i3'
     repo = new repo_name
     repo.create
-    repo.add_record file_path
+    rec1 = repo.add_record file_path
 
     repo = Cman::Repository.read repo_name
     repo.size.should eq 1
+
+    rec2 = repo.get_record 0
+
+    rec1.id.should eq rec2.id
+    rec1.name.should eq rec2.name
+    rec1.path.should eq rec2.path
+    rec1.owner.should eq rec2.owner
   end
 
   it 'can add files with the same name' do
+    name = 'file'
+    path1 = "/test/#{name}"
+    path2 = "/test/1/#{name}"
+    touch "#{path1}/somefile", path2
+
+    repo = new 'i3'
+    repo.create
+
+    rec1 = repo.add_record path1
+    rec1.name.should eq name
+
+    rec2 = repo.add_record path2
+    rec2.repo_file.should eq Cman::Record.long_repo_file(rec2)
+    File.exist?(rec2.repo_path).should be_true
+
+    rec1.repo_file.should eq Cman::Record.long_repo_file(rec1)
+    File.directory?(rec1.repo_path).should be_true
+  end
+
+  it 'can add hidden files' do
     pending
   end
 end

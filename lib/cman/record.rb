@@ -8,18 +8,34 @@ module Cman
 
   # item record
   class Record
+    def self.long_repo_file(rec)
+      "#{rec.name} #{rec.id}"
+    end
+
     attr_accessor :id, :path, :owner, :repository, :name
 
-    def initialize(path, id: -1, repository: nil)
+    def initialize(path, id: -1, repository: nil, name: '')
       @id = id
       @owner = ''
-      @name = ''
+      @name = name
       @path = Cman.simplify_path path
       @repository = repository
     end
 
+    def repo_file
+      recs = @repository.records.select do |rec|
+        rec != self && rec.name == @name
+      end
+
+      if recs.length > 0
+        Record.long_repo_file self
+      else
+        @name
+      end
+    end
+
     def repo_path
-      File.join @repository.path, @name
+      File.join @repository.path, repo_file
     end
 
     def ==(other)
