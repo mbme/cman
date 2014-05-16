@@ -75,8 +75,20 @@ module Cman
       rec
     end
 
-    def get_record(id)
-      @records.find { |rec| rec.id == id }
+    def remove_record(id)
+      rec = get_record id, failIfNil: true
+
+      @records.delete rec
+      FileUtils.rm_rf rec.repo_path
+    end
+
+    def get_record(id, failIfNil: false)
+      rec = @records.find { |r| r.id == id }
+      if failIfNil && rec.nil?
+        fail("#{@name}: can't find record with id #{id}")
+      end
+
+      rec
     end
 
     def to_json

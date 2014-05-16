@@ -111,6 +111,7 @@ describe Cman::Repository do
     rec.id.should eq 0
     rec.repo_file.should eq Cman::Record.repo_file rec
 
+    File.file?(file_path).should be_true
     File.file?(rec.repo_path).should be_true
     File.file?(repo.config_path).should be_true
   end
@@ -200,7 +201,7 @@ describe Cman::Repository do
     File.directory?(rec1.repo_path).should be_true
   end
 
-  it 'can add hidden files' do
+  it 'can add hidden file' do
     repo = new 'i3'
     repo.create
 
@@ -209,8 +210,35 @@ describe Cman::Repository do
 
     rec = repo.add_record file_path
 
-    rec.repository.should eq repo
-
     File.file?(rec.repo_path).should be_true
+  end
+
+  it 'can remove file' do
+    repo = new 'i3'
+    repo.create
+
+    file_path1 = '/test/.file'
+    file_path2 = '/test1/file'
+    touch file_path1, file_path2
+
+    rec = repo.add_record file_path1
+    repo.add_record file_path2
+
+    repo.size.should eq 2
+    File.file?(rec.repo_path).should be_true
+
+    repo.remove_record rec.id
+
+    repo.size.should eq 1
+    File.file?(rec.repo_path).should be_false
+  end
+
+  it 'cannot remove not existing file' do
+    repo = new 'i3'
+    repo.create
+
+    expect { repo.remove_record 1000 }.to raise_error
+
+    repo.size.should eq 0
   end
 end
