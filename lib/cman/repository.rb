@@ -63,14 +63,11 @@ module Cman
     end
 
     def add_record(filepath)
-      rec = Cman::Record.new(
-        filepath, id: free_id, repository: self, name: File.basename(filepath)
-      )
+      rec = Cman::Record.new(filepath, id: free_id, repository: self)
 
       @records.include?(rec) &&
         fail("repository #{@name} already contains #{filepath}")
 
-      rename_file_with_same_name File.basename(filepath)
       copy_file filepath, rec.repo_path
       @records << rec
 
@@ -87,23 +84,10 @@ module Cman
     end
 
     def parse_json
-      hash = JSON.parse File.read(config_path)
-      parse hash
+      parse JSON.parse File.read(config_path)
     end
 
     private
-
-    def rename_file_with_same_name(name)
-      recs = @records.select { |rec| rec.repo_file == name }
-      if recs.length > 1
-        fail("too many files in repository #{@name} "\
-             " with name #{name}: #{recs.length}")
-      elsif recs.length == 1
-        rec = recs[0]
-        FileUtils.mv rec.repo_path,
-                     File.join(path, Cman::Record.long_repo_file(rec))
-      end
-    end
 
     def copy_file(src, dst)
       if File.file?(src)

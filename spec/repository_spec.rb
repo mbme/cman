@@ -109,7 +109,7 @@ describe Cman::Repository do
 
     rec.repository.should eq repo
     rec.id.should eq 0
-    rec.name.should eq File.basename file_path
+    rec.repo_file.should eq Cman::Record.repo_file rec
 
     File.file?(rec.repo_path).should be_true
     File.file?(repo.config_path).should be_true
@@ -152,17 +152,16 @@ describe Cman::Repository do
 
     rec.repository.should eq repo
     rec.id.should eq 0
-    rec.name.should eq File.basename base_dir
 
     Dir.exist?(rec.repo_path).should be_true
-    File.exist?(File.join(repo.path, rec.name, f1)).should be_true
-    File.exist?(File.join(repo.path, rec.name, f2)).should be_true
+    File.exist?(File.join(repo.path, rec.repo_file, f1)).should be_true
+    File.exist?(File.join(repo.path, rec.repo_file, f2)).should be_true
 
     # we should skip empty dirs
-    Dir.exist?(File.join(repo.path, rec.name, d1)).should be_false
+    Dir.exist?(File.join(repo.path, rec.repo_file, d1)).should be_false
 
     # we should skip symlinks
-    File.symlink?(File.join(repo.path, rec.name, l1)).should be_false
+    File.symlink?(File.join(repo.path, rec.repo_file, l1)).should be_false
   end
 
   it 'can be deserialized from config file' do
@@ -180,7 +179,6 @@ describe Cman::Repository do
     rec2 = repo.get_record 0
 
     rec1.id.should eq rec2.id
-    rec1.name.should eq rec2.name
     rec1.path.should eq rec2.path
     rec1.owner.should eq rec2.owner
   end
@@ -195,17 +193,24 @@ describe Cman::Repository do
     repo.create
 
     rec1 = repo.add_record path1
-    rec1.name.should eq name
 
     rec2 = repo.add_record path2
-    rec2.repo_file.should eq Cman::Record.long_repo_file(rec2)
     File.exist?(rec2.repo_path).should be_true
 
-    rec1.repo_file.should eq Cman::Record.long_repo_file(rec1)
     File.directory?(rec1.repo_path).should be_true
   end
 
   it 'can add hidden files' do
-    pending
+    repo = new 'i3'
+    repo.create
+
+    file_path = '/test/.file'
+    touch file_path
+
+    rec = repo.add_record file_path
+
+    rec.repository.should eq repo
+
+    File.file?(rec.repo_path).should be_true
   end
 end

@@ -8,30 +8,25 @@ module Cman
 
   # item record
   class Record
-    def self.long_repo_file(rec)
-      "#{rec.name} #{rec.id}"
+    def self.repo_file(rec)
+      rec.path.gsub '/', ':'
     end
 
-    attr_accessor :id, :path, :owner, :repository, :name
+    def self.parse(hash)
+      Record.new hash['path'], id: hash['id'], owner: hash['owner']
+    end
 
-    def initialize(path, id: -1, repository: nil, name: '')
+    attr_accessor :id, :path, :owner, :repository
+
+    def initialize(path, id: -1, repository: nil, owner: '')
       @id = id
-      @owner = ''
-      @name = name
-      @path = Cman.simplify_path path
+      @owner = owner
       @repository = repository
+      @path = Cman.simplify_path path
     end
 
     def repo_file
-      recs = @repository.records.select do |rec|
-        rec != self && rec.name == @name
-      end
-
-      if recs.length > 0
-        Record.long_repo_file self
-      else
-        @name
-      end
+      Record.repo_file self
     end
 
     def repo_path
@@ -46,16 +41,8 @@ module Cman
       JSON.pretty_generate(
         'id' => @id,
         'path' => @path,
-        'owner' => @owner,
-        'name' => @name
+        'owner' => @owner
       )
-    end
-
-    def self.parse(hash)
-      rec = Record.new hash['path'], id: hash['id']
-      rec.name = hash['name']
-      rec.owner = hash['owner']
-      rec
     end
   end
 end
