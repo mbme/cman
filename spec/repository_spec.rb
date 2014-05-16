@@ -27,19 +27,19 @@ describe Cman::Repository do
     FileUtils.mkdir_p BASE_DIR
   end
 
-  it "exists when it's dir exists" do
+  it "exist when it's dir exist" do
     name = 'repo1'
     FileUtils.mkdir File.join(BASE_DIR, name)
 
     repo = new name
 
-    repo.exists?.should be_true
+    repo.exist?.should be_true
   end
 
-  it "doesn't exists when its dir doesn't exists" do
+  it "doesn't exist when its dir doesn't exist" do
     repo = new 'repo1'
 
-    repo.exists?.should be_false
+    repo.exist?.should be_false
   end
 
   it 'correctly builds full repo path' do
@@ -60,17 +60,17 @@ describe Cman::Repository do
   it 'can be created' do
     repo = new 'i3'
 
-    repo.exists?.should be_false
+    repo.exist?.should be_false
 
     repo.create
 
-    repo.exists?.should be_true
+    repo.exist?.should be_true
 
-    # check if config file exists
+    # check if config file exist
     File.file?(repo.config_path).should be_true
   end
 
-  it 'cannot be created if already exists' do
+  it 'cannot be created if already exist' do
     name = 'i3'
     repo = new name
     repo.create
@@ -79,21 +79,21 @@ describe Cman::Repository do
     expect { repo.create }.to raise_error
   end
 
-  it 'can be removed if exists' do
+  it 'can be removed if exist' do
     name = 'i3'
     repo = new name
 
     repo.create
-    repo.exists?.should be_true
+    repo.exist?.should be_true
 
     repo.delete
-    repo.exists?.should be_false
+    repo.exist?.should be_false
   end
 
-  it "cannot be removed if doesn't exists" do
+  it "cannot be removed if doesn't exist" do
     repo = new 'i3'
 
-    repo.exists?.should be_false
+    repo.exist?.should be_false
 
     expect { repo.delete }.to raise_error
   end

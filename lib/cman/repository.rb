@@ -15,11 +15,27 @@ module Cman
   class Repository
     REPO_CONFIG = '.cman'
 
-    attr_reader :records
-
     def self.read(name)
-      Repository.new(name).parse_json
+      repo = Repository.new name
+      repo.exist? || fail("#{name}: does not exist")
+      repo.parse_json
     end
+
+    def self.stats(name: nil)
+      if name
+        repo = Repository.read name
+        info "#{name} stats:"
+        info "records: #{repo.size}"
+        repo.records.each do |rec|
+          info "  #{rec.id} #{rec.path}"
+        end
+      else
+        info 'stats:'
+        info "home dir: #{@@config['base_dir']}"
+      end
+    end
+
+    attr_reader :records, :name
 
     def initialize(name)
       @name = name
@@ -34,12 +50,12 @@ module Cman
       File.join(path, REPO_CONFIG)
     end
 
-    def exists?
+    def exist?
       File.directory?(path)
     end
 
     def create
-      exists? && fail("can't create repository #{@name}: already exists")
+      exist? && fail("can't create repository #{@name}: already exists")
 
       FileUtils.mkdir path
 
@@ -58,7 +74,7 @@ module Cman
     end
 
     def delete
-      exists? || fail("can't remove repository #{@name}: doesn't exists")
+      exist? || fail("can't remove repository #{@name}: doesn't exists")
       FileUtils.rm_r path
     end
 
