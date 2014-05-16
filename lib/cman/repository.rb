@@ -63,7 +63,7 @@ module Cman
     end
 
     def add_record(filepath)
-      rec = Cman::Record.new(filepath, id: free_id, repository: self)
+      rec = Record.new(filepath, id: free_id, repository: self)
 
       @records.include?(rec) &&
         fail("repository #{@name} already contains #{filepath}")

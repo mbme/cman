@@ -1,13 +1,15 @@
 #!/usr/bin/env ruby
 
 require 'cman'
+require 'cman/logger'
 
+include Cman::Logger
 command = ARGV[0]
 unless Cman.respond_to?(command)
-  log.error "wrong command '#{command}'"
+  error "wrong command '#{command}'"
 
   methods = Cman.methods(false).map { |s| s.to_s }.join ', '
-  log.error "must be one of #{methods}"
+  error "must be one of #{methods}"
 
   return 1
 end

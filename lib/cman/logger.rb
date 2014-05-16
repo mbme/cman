@@ -1,18 +1,14 @@
-# Simple logger
 module Cman
-  # logger instance
-  class Logger
+  # Simple mixin logger
+  module Logger
+    LEVELS = { 0 => 'DEBUG', 1 => 'INFO ', 2 => 'WARN ', 3 => 'ERROR' }
+
     @@level = 1
-    @@level_str = { 0 => 'DEBUG', 1 => 'INFO ', 2 => 'WARN ', 3 => 'ERROR' }
 
-    def initialize(name)
-      @name = name
-    end
-
-    def print(level, msg)
-      level < @@level && return
-
-      puts "#{@@level_str[level]}   #{msg}"
+    # setting or getting logger level
+    def self.level(level: -1)
+      level != -1 && @@level = level
+      @@level
     end
 
     def debug(msg)
@@ -32,12 +28,12 @@ module Cman
       exit 1
     end
 
-    # setting or getting logger level
-    def self.level(level: -1)
-      level != -1 && @@level = level
-      @@level
-    end
+    private
 
-    private :print
+    def print(level, msg)
+      level < @@level && return
+
+      puts "#{LEVELS[level]}   #{msg}"
+    end
   end
 end

@@ -31,3 +31,4 @@ TODO: Write usage instructions here
 ## Todo
 
 1. check if record is installed when removing
+2. manage files owner, group etc.
