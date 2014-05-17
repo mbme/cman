@@ -1,7 +1,6 @@
 require 'json'
-require 'fileutils'
 require 'cman/record'
-require 'pathname'
+require 'cman/utils'
 
 # Here we have repository wrapper.
 module Cman
@@ -14,10 +13,11 @@ module Cman
   # files repository
   class Repository
     REPO_CONFIG = '.cman'
+    include Utils
 
     def self.read(name)
       repo = Repository.new name
-      repo.exist? || fail("#{name}: does not exist")
+      fail("#{name}: does not exist") unless repo.exist?
       repo.parse_json
     end
 
@@ -35,7 +35,21 @@ module Cman
       end
     end
 
+    def self.save_after(*methods)
+      methods.each do |method|
+        mod = Module.new do
+          define_method(method) do |*args, &block|
+            result = super(*args, &block)
+            save
+            result
+          end
+        end
+        prepend mod
+      end
+    end
+
     attr_reader :records, :name
+    save_after :create, :add_record, :remove_record
 
     def initialize(name)
       @name = name
@@ -55,12 +69,9 @@ module Cman
     end
 
     def create
-      exist? && fail("can't create repository #{@name}: already exists")
+      fail("#{@name}: can't create repository: already exists") if exist?
 
-      FileUtils.mkdir path
-
-      # create empty config file
-      save
+      mkdir path
     end
 
     def size
@@ -74,8 +85,8 @@ module Cman
     end
 
     def delete
-      exist? || fail("can't remove repository #{@name}: doesn't exists")
-      FileUtils.rm_r path
+      fail("#{@name}: can't remove repository: doesn't exists") unless exist?
+      rm path
     end
 
     def add_record(filepath)
@@ -87,7 +98,6 @@ module Cman
       copy_file filepath, rec.repo_path
       @records << rec
 
-      save
       rec
     end
 
@@ -95,7 +105,7 @@ module Cman
       rec = get_record id, failIfNil: true
 
       @records.delete rec
-      FileUtils.rm_rf rec.repo_path
+      rm rec.repo_path
     end
 
     def get_record(id, failIfNil: false)
@@ -117,37 +127,10 @@ module Cman
 
     private
 
-    def copy_file(src, dst)
-      if File.file?(src)
-        FileUtils.cp src, dst
-      elsif File.directory?(src)
-        copy_dir src, dst
-      end
-    end
-
-    def copy_dir(src, dst)
-      dst_path = Pathname.new dst
-      src_path = Pathname.new src
-
-      Dir.glob("#{src}/**/*") do |file|
-        next unless File.file? file
-
-        relpath = Pathname.new(file).relative_path_from(src_path)
-        file_dst =  dst_path.join(relpath).to_path
-
-        FileUtils.mkdir_p File.dirname(file_dst)
-        FileUtils.cp file, file_dst
-      end
-    end
-
     def free_id
       rec = @records.max_by(&:id)
 
-      if rec
-        rec.id + 1
-      else
-        0
-      end
+      rec.nil? ? 0 : rec.id + 1
     end
 
     def parse(hash)

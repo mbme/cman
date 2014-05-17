@@ -214,7 +214,8 @@ describe Cman::Repository do
   end
 
   it 'can remove file' do
-    repo = new 'i3'
+    repo_name = 'i3'
+    repo = new repo_name
     repo.create
 
     file_path1 = '/test/.file'
@@ -229,6 +230,7 @@ describe Cman::Repository do
 
     repo.remove_record rec.id
 
+    repo = Cman::Repository.read repo_name
     repo.size.should eq 1
     File.file?(rec.repo_path).should be_false
   end
