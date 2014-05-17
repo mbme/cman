@@ -3,12 +3,12 @@ module Cman
   module Logger
     LEVELS = { 0 => 'DEBUG', 1 => 'INFO ', 2 => 'WARN ', 3 => 'ERROR' }
 
-    @@level = 1
+    @@debug = true
 
-    # setting or getting logger level
-    def self.level(level: -1)
-      level != -1 && @@level = level
-      @@level
+    # get or set debug option
+    def self.debug(enabled: nil)
+      @@debug = enabled unless enabled.nil?
+      @@debug
     end
 
     def debug(msg)
@@ -31,7 +31,7 @@ module Cman
     private
 
     def print(level, msg)
-      level < @@level && return
+      level == 0 && !@@debug && return
 
       puts "#{LEVELS[level]}   #{msg}"
     end
