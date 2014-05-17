@@ -90,10 +90,14 @@ module Cman
     end
 
     def add_record(filepath)
+      fail("#{filepath} is symlink") if File.symlink? filepath
+      unless File.file?(filepath) || File.directory?(filepath)
+        fail("#{filepath} is not file or dir")
+      end
+
       rec = Record.new(filepath, id: free_id, repository: self)
 
-      @records.include?(rec) &&
-        fail("repository #{@name} already contains #{filepath}")
+      @records.include?(rec) && fail("#{@name}: already contains #{filepath}")
 
       copy_file filepath, rec.repo_path
       @records << rec

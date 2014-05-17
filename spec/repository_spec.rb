@@ -130,6 +130,19 @@ describe Cman::Repository do
     expect { repo.add_record file_path }.to raise_error
   end
 
+  it 'cannot add symlink' do
+    repo = new 'i3'
+    repo.create
+
+    file_path = '/test/file'
+    touch file_path
+
+    link = '/test/symlink'
+    FileUtils.symlink file_path, link
+
+    expect { repo.add_record(link) }.to raise_error
+  end
+
   it 'can add dir with multiple files and dirs' do
     repo = new 'i3'
     repo.create
