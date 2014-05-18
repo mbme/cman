@@ -13,14 +13,13 @@ module Cman
     end
 
     def self.parse(hash)
-      Record.new hash['path'], id: hash['id'], owner: hash['owner']
+      Record.new hash['path'], id: hash['id']
     end
 
-    attr_accessor :id, :path, :owner, :repository
+    attr_accessor :id, :path, :repository
 
-    def initialize(path, id: -1, repository: nil, owner: '')
+    def initialize(path, id: -1, repository: nil)
       @id = id
-      @owner = owner
       @repository = repository
       @path = Cman.simplify_path path
     end
@@ -40,8 +39,7 @@ module Cman
     def to_json(*_)
       JSON.pretty_generate(
         'id' => @id,
-        'path' => @path,
-        'owner' => @owner
+        'path' => @path
       )
     end
   end
