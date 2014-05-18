@@ -2,29 +2,12 @@ require 'spec_helper'
 
 describe Cman::Repository do
   include FakeFS::SpecHelpers
-
-  BASE_DIR = Cman.config['base_dir']
-  def new(name)
-    Cman::Repository.new name
-  end
-
-  def touch(*files)
-    files.each do |file|
-      FileUtils.mkdir_p File.dirname file
-      File.open(file, 'w') { |f| f.write 'TEST' }
-    end
-  end
-
-  def cat(file)
-    puts "\n\n--- File #{file}:"
-    File.readlines(file).each do |line|
-      puts line
-    end
-    puts "\n\n--- #{file} ends here\n\n"
-  end
-
   before :each do
     FileUtils.mkdir_p BASE_DIR
+  end
+
+  def new(name)
+    Cman::Repository.new name
   end
 
   it "exist when it's dir exist" do
@@ -194,7 +177,6 @@ describe Cman::Repository do
 
     rec1.id.should eq rec2.id
     rec1.path.should eq rec2.path
-    rec1.owner.should eq rec2.owner
   end
 
   it 'can add files with the same name' do

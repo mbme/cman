@@ -2,6 +2,8 @@ require 'json'
 
 # Here we have record wrapper.
 module Cman
+  BACKUP_EXT = '.cman'
+
   def self.simplify_path(filepath)
     filepath.start_with?(Dir.home) ? filepath.sub!(Dir.home, '~') : filepath
   end
@@ -30,6 +32,29 @@ module Cman
 
     def repo_path
       File.join @repository.path, repo_file
+    end
+
+    def backup_path
+      name = File.basename(@path) + BACKUP_EXT
+
+      name = name[0] == '.' ? name : '.' + name
+
+      File.join File.dirname(@path), name
+    end
+
+    def install
+      fail("#{@repository}: #{@path} already installed") if installed?
+
+      # backup if exists
+      if File.exist?(@path) || Dir.exist?(@path)
+        FileUtils.mv @path, backup_path
+      end
+
+      FileUtils.ln_s repo_path, @path
+    end
+
+    def installed?
+      File.symlink?(@path) && File.readlink(@path) == repo_path
     end
 
     def ==(other)
