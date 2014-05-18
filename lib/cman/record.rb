@@ -53,6 +53,17 @@ module Cman
       FileUtils.ln_s repo_path, @path
     end
 
+    def uninstall
+      fail("#{@repository}: #{@path} not installed") unless installed?
+      FileUtils.rm @path
+
+      # restore backup if exists
+      backup = backup_path
+      if File.exist?(backup) || Dir.exist?(backup)
+        FileUtils.mv backup, @path
+      end
+    end
+
     def installed?
       File.symlink?(@path) && File.readlink(@path) == repo_path
     end

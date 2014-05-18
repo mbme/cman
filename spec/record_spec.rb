@@ -90,4 +90,38 @@ describe Cman::Record do
 
     expect { rec.install }.to raise_error
   end
+
+  it 'can be uninstalled' do
+    repo = Cman::Repository.new 'i3'
+    repo.create
+
+    file = '/some/file'
+    touch file
+
+    rec = repo.add_record file
+    rec.install
+    rec.installed?.should be_true
+    File.exist?(rec.backup_path).should be_true
+
+    rec.uninstall
+    rec.installed?.should be_false
+
+    # check if backup file restored
+    File.exist?(rec.backup_path).should be_false
+    File.exist?(rec.path).should be_true
+  end
+
+  it 'cannot be uninstalled if not installed' do
+    repo = Cman::Repository.new 'i3'
+    repo.create
+
+    file = '/some/file'
+    touch file
+
+    rec = repo.add_record file
+    rec.installed?.should be_false
+    File.exist?(rec.backup_path).should be_false
+
+    expect { rec.uninstall }.to raise_error
+  end
 end
