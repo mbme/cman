@@ -1,20 +1,27 @@
 require 'cman/logger'
 
-# main commands
 module Cman
+  # command executor exception
+  class ExecutorError < StandardError
+  end
+
   # command executor
   class Executor
     include Logger
 
-    @@commands = %w(add, remove, nstall, uninstall, status)
+    COMMANDS = %w(add remove install uninstall status)
 
     def initialize(command)
-      unless @@commands.include? command
-        fail "wrong command #{command}, valid are #{@@commands.join ', '}"
+      unless COMMANDS.include? command
+        fail("wrong command #{command}, valid are #{COMMANDS.join ', '}")
       end
+      @command = command
     end
 
     def execute(*args)
+      send @command, *args
+    rescue ArgumentError => e
+      raise ExecutorError, "command #{@command}; #{e.message}"
     end
 
     private
@@ -36,7 +43,7 @@ module Cman
     end
 
     def status(repo = nil)
-      info 'status'
+      info "status #{repo}"
     end
   end
 end

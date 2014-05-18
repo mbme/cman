@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'cman'
+require 'cman/executor'
 require 'cman/logger'
 
 include Cman::Logger

@@ -25,7 +25,6 @@ module Cman
 
     def error(msg)
       print 3, msg
-      exit 1
     end
 
     private
