@@ -1,4 +1,5 @@
 require 'json'
+require 'fileutils'
 require 'cman/record'
 require 'cman/utils'
 
@@ -71,7 +72,7 @@ module Cman
     def create
       fail("#{@name}: can't create repository: already exists") if exist?
 
-      mkdir path
+      FileUtils.mkdir path
     end
 
     def size
@@ -86,7 +87,7 @@ module Cman
 
     def delete
       fail("#{@name}: can't remove repository: doesn't exists") unless exist?
-      rm path
+      FileUtils.rm_r path
     end
 
     def add_record(filepath)
@@ -109,7 +110,7 @@ module Cman
       rec = get_record id, failIfNil: true
 
       @records.delete rec
-      rm rec.repo_path
+      FileUtils.rm_r rec.repo_path
     end
 
     def get_record(id, failIfNil: false)

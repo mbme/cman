@@ -26,13 +26,5 @@ module Cman
         FileUtils.cp file, file_dst
       end
     end
-
-    def mkdir(dir)
-      FileUtils.mkdir dir
-    end
-
-    def rm(path)
-      FileUtils.rm_r path
-    end
   end
 end
