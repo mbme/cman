@@ -12,24 +12,34 @@ module Cman
     end
 
     def debug(msg)
-      print 0, msg
+      log 0, msg
     end
 
     def info(msg)
-      print 1, msg
+      log 1, msg
     end
 
     def warn(msg)
-      print 2, msg
+      log 2, msg
     end
 
     def error(msg)
-      print 3, msg
+      log 3, msg
+    end
+
+    def dialog(msg)
+      resp = ''
+      until %w( y n ).include? resp
+        info msg + ' (y/n)'
+        resp = gets
+      end
+
+      resp == 'y'
     end
 
     private
 
-    def print(level, msg)
+    def log(level, msg)
       level == 0 && !@@debug && return
 
       puts "#{LEVELS[level]}   #{msg}"

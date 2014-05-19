@@ -26,5 +26,16 @@ module Cman
         FileUtils.cp file, file_dst
       end
     end
+
+    def build_path(file)
+      path = Pathname(file).cleanpath
+
+      unless path.absolute?
+        base = Pathname(ENV['PATH']) or Pathname.pwd
+        path = (base + path).cleanpath
+      end
+
+      path.to_s
+    end
   end
 end

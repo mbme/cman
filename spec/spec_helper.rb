@@ -3,7 +3,7 @@ require_relative '../lib/cman/repository'
 require_relative '../lib/cman/executor'
 
 require 'yaml'
-
+require 'pathname'
 require 'fakefs/spec_helpers'
 
 def touch(*files)
