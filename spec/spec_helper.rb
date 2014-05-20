@@ -22,3 +22,4 @@ def cat(file)
 end
 
 BASE_DIR = Cman.config['base_dir']
+Cman::Logger.debug enabled: false

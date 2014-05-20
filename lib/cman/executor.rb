@@ -8,10 +8,81 @@ module Cman
   class ExecutorError < StandardError
   end
 
+  # helper methods for executor
+  module ExecutorUtils
+    private
+
+    def add_repo(repo_name)
+      if dialog "#{repo_name}: create repository?"
+        Cman::Repository.new(repo_name).create
+
+        info "#{repo_name}: created"
+      else
+        info 'cancelled'
+      end
+    end
+
+    def add_files(repo_name, files)
+      repo = Cman::Repository.read repo_name
+      paths = files.map { |f| build_path f }
+
+      paths.each { |f| info f }
+      if dialog "#{repo_name}: add files?"
+        count = paths.map { |f| add_file repo, f }.compact.length
+        info "#{repo_name}: added #{count} files"
+      else
+        info 'cancelled'
+      end
+    end
+
+    def add_file(repo, path)
+      rec = repo.add_record path
+      debug "added #{path}"
+      rec
+    rescue => e
+      error "can't add #{path}: #{e.message}"
+    end
+
+    def remove_repo(repo_name)
+      if dialog "#{repo_name}: remove repository?"
+        Cman::Repository.read(repo_name).delete
+
+        info "#{repo_name}: deleted"
+      else
+        info 'cancelled'
+      end
+    end
+
+    def cleanup_ids(repo, ids)
+      ids.each do |i|
+        rec = repo.get_record(i)
+        if rec.nil?
+          ids.delete i
+          error "#{repo_name}: can't find file with id #{i}"
+        else
+          info rec
+        end
+      end
+    end
+
+    def remove_files(repo_name, ids)
+      repo = Cman::Repository.read repo_name
+      cleanup_ids repo, ids
+
+      if dialog "#{repo_name}: remove files?"
+        ids.each { |i| repo.remove_record i }
+        info "#{repo_name}: deleted #{ids.length} files"
+      else
+        info 'cancelled'
+      end
+    end
+  end
+
   # command executor
   class Executor
     include Logger
     include Utils
+    include ExecutorUtils
 
     COMMANDS = %w(add remove install uninstall status)
 
@@ -32,47 +103,18 @@ module Cman
 
     def add(repo_name, *args)
       if args.length > 0
-        add_files repo_name, args
+        add_files repo_name, args.to_set
       else
         add_repo repo_name
       end
     end
 
-    def add_repo(repo_name)
-      if dialog "#{repo_name}: add this repository?"
-        repo = Cman::Repository.new repo_name
-
-        fail ExecutorError, "#{repo_name} already exist" if repo.exist?
-
-        repo.create
-        info "#{repo_name}: created"
+    def remove(repo_name, *args)
+      if args.length > 0
+        remove_files repo_name, args.to_set
       else
-        info 'cancelled'
+        remove_repo repo_name
       end
-    end
-
-    def add_files(repo_name, files)
-      repo = Cman::Repository.read repo_name
-      paths = *files.map { |f| build_path f }
-
-      paths.each { |f| info f }
-      if dialog "#{repo_name}: add this files?"
-        paths.each { |f| add_file repo, f }
-      else
-        info 'cancelled'
-      end
-    end
-
-    def add_file(repo, path)
-      repo.add_record path
-
-      info "added #{path}"
-    rescue => e
-      error "can't add #{path}: #{e.message}"
-    end
-
-    def remove(repo, *args)
-      info 'removing'
     end
 
     def install(repo, *args)

@@ -143,7 +143,7 @@ module Cman
 
     def parse(hash)
       @name = hash['name']
-      @records = hash['records'].map { |item| Record.parse item }
+      @records = hash['records'].map { |item| Record.parse item, self }
       self
     end
   end

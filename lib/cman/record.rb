@@ -14,8 +14,8 @@ module Cman
       rec.path.gsub '/', ':'
     end
 
-    def self.parse(hash)
-      Record.new hash['path'], id: hash['id']
+    def self.parse(hash, repository)
+      Record.new hash['path'], id: hash['id'], repository: repository
     end
 
     attr_accessor :id, :path, :repository
@@ -59,9 +59,7 @@ module Cman
 
       # restore backup if exists
       backup = backup_path
-      if File.exist?(backup) || Dir.exist?(backup)
-        FileUtils.mv backup, @path
-      end
+      FileUtils.mv backup, @path if File.exist?(backup) or Dir.exist?(backup)
     end
 
     def installed?
@@ -77,6 +75,10 @@ module Cman
         'id' => @id,
         'path' => @path
       )
+    end
+
+    def to_s
+      "#{@id}  #{@path}"
     end
   end
 end
