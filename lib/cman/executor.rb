@@ -10,6 +10,9 @@ module Cman
 
   # helper methods for executor
   module ExecutorUtils
+    include Logger
+    include Utils
+
     private
 
     def add_repo(repo_name)
@@ -53,6 +56,18 @@ module Cman
       end
     end
 
+    def general_stats
+      info 'stats:'
+      info "home dir: #{Cman.config['base_dir']}"
+    end
+
+    def repo_stats(repo_name)
+      repo = Repository.read repo_name
+      repo.stats.each { |x| info x }
+    rescue => e
+      error e.message
+    end
+
     def cleanup_ids(repo, ids)
       ids.each do |i|
         rec = repo.get_record(i)
@@ -80,11 +95,9 @@ module Cman
 
   # command executor
   class Executor
-    include Logger
-    include Utils
     include ExecutorUtils
 
-    COMMANDS = %w(add remove install uninstall status)
+    COMMANDS = %w(add remove install uninstall stats)
 
     def initialize(command)
       unless COMMANDS.include? command
@@ -125,8 +138,12 @@ module Cman
       info 'uninstalling'
     end
 
-    def status(repo = nil)
-      info "status #{repo}"
+    def stats(repo_name = nil)
+      if repo_name.nil?
+        general_stats
+      else
+        repo_stats repo_name
+      end
     end
   end
 end

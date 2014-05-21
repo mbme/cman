@@ -125,4 +125,23 @@ describe Cman::Executor do
 
     path.children.length.should eq 2
   end
+
+  it 'can show stats' do
+    repo_name = 'i3'
+    comm = new 'add'
+    comm.should_receive(:gets).and_return('y')
+    comm.execute repo_name
+
+    comm = new 'stats'
+    comm.execute
+
+    comm.execute repo_name
+  end
+
+  it 'show stats for non existing repo' do
+    repo_name = 'i3'
+
+    comm = new 'stats'
+    comm.execute repo_name
+  end
 end

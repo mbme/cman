@@ -22,20 +22,6 @@ module Cman
       repo.parse_json
     end
 
-    def self.stats(name: nil)
-      if name
-        repo = Repository.read name
-        info "#{name} stats:"
-        info "records: #{repo.size}"
-        repo.records.each do |rec|
-          info "  #{rec.id} #{rec.path}"
-        end
-      else
-        info 'stats:'
-        info "home dir: #{@@config['base_dir']}"
-      end
-    end
-
     def self.save_after(*methods)
       methods.each do |method|
         mod = Module.new do
@@ -58,7 +44,7 @@ module Cman
     end
 
     def path
-      File.join Cman.config['base_dir'], @name
+      File.join(Cman.config['base_dir'], @name)
     end
 
     def config_path
@@ -131,6 +117,21 @@ module Cman
 
     def parse_json
       parse JSON.parse File.read(config_path)
+    end
+
+    def stats
+      fail("#{@name}: does not exist") unless exist?
+
+      result = []
+
+      result << "#{@name} stats:"
+      result << "records: #{size}"
+
+      records.each do |rec|
+        result << "  #{rec.id} #{rec.path}"
+      end
+
+      result
     end
 
     private
