@@ -5,6 +5,7 @@ require_relative '../lib/cman/executor'
 require 'yaml'
 require 'pathname'
 require 'fakefs/spec_helpers'
+require 'singleton'
 
 def touch(*files)
   files.each do |file|
@@ -22,4 +23,24 @@ def cat(file)
 end
 
 BASE_DIR = Cman.config['base_dir']
-Cman::Logger.debug enabled: false
+
+class DummyOutput
+  include Singleton
+  def write(*)
+  end
+end
+
+RSpec.configure do |config|
+  # original_stderr = $stderr
+  original_stdout = $stdout
+
+  config.before(:all) do
+    # $stderr = nil
+    $stdout = DummyOutput.instance
+  end
+
+  config.after(:all) do
+    # $stderr = original_stderr
+    $stdout = original_stdout
+  end
+end
