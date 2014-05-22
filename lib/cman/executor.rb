@@ -68,12 +68,19 @@ module Cman
       error e.message
     end
 
+    def parse_int(id)
+      Integer(id)
+    rescue
+      nil
+    end
+
     def cleanup_ids(repo, ids)
+      ids.map! { |i| parse_int i }.delete nil
       ids.each do |i|
         rec = repo.get_record(i)
         if rec.nil?
           ids.delete i
-          error "#{repo_name}: can't find file with id #{i}"
+          error "#{repo.name}: can't find file with id #{i}"
         else
           info rec
         end
@@ -90,6 +97,24 @@ module Cman
       else
         info 'cancelled'
       end
+    end
+
+    def install_files(repo_name, ids)
+      repo = Cman::Repository.read repo_name
+      cleanup_ids repo, ids
+
+      if dialog "#{repo_name}: install files?"
+        ids.each { |i| repo.get_record(i).install }
+        info "#{repo_name}: installed #{ids.length} files"
+      else
+        info 'cancelled'
+      end
+    end
+
+    def install_repo(repo_name)
+      repo = Cman::Repository.read repo_name
+      ids = repo.records.map { |r| r.id }
+      install_files repo_name, ids
     end
   end
 
@@ -130,8 +155,12 @@ module Cman
       end
     end
 
-    def install(repo, *args)
-      info 'installing'
+    def install(repo_name, *args)
+      if args.length > 0
+        install_files repo_name, args.to_set
+      else
+        install_repo repo_name
+      end
     end
 
     def uninstall(repo, *args)

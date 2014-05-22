@@ -119,7 +119,7 @@ describe Cman::Executor do
 
     comm = new 'remove'
     comm.should_receive(:gets).and_return('y')
-    comm.execute repo_name, 1 # 1 is repo file id
+    comm.execute repo_name, '1', 'test' # 1 is repo file id
 
     path = Pathname(File.join(BASE_DIR, repo_name))
 
@@ -143,5 +143,55 @@ describe Cman::Executor do
 
     comm = new 'stats'
     comm.execute repo_name
+  end
+
+  it 'can install files' do
+    repo_name = 'i3'
+
+    comm = new 'add'
+    comm.should_receive(:gets).and_return('y')
+    comm.execute repo_name
+
+    file1 = '/test/file1'
+    file2 = '/test/file2'
+    touch file1, file2
+
+    comm.should_receive(:gets).and_return('y')
+    comm.execute repo_name, file1, file2
+
+    comm = new 'install'
+    comm.should_receive(:gets).and_return('y')
+    comm.execute repo_name, '1'
+
+    File.symlink?(file2).should be_true
+  end
+
+  it 'can install repository' do
+    repo_name = 'i3'
+
+    comm = new 'add'
+    comm.should_receive(:gets).and_return('y')
+    comm.execute repo_name
+
+    file1 = '/test/file1'
+    file2 = '/test/file2'
+    touch file1, file2
+
+    comm.should_receive(:gets).and_return('y')
+    comm.execute repo_name, file1, file2
+
+    comm = new 'install'
+    comm.should_receive(:gets).and_return('y')
+    comm.execute repo_name
+
+    File.symlink?(file1).should be_true
+    File.symlink?(file2).should be_true
+  end
+
+  it 'cannot install files from unknown repo' do
+    repo_name = 'i3'
+
+    comm = new 'install'
+    expect { comm.execute repo_name, '1' }.to raise_error
   end
 end
