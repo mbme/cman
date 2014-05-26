@@ -22,6 +22,7 @@ def cat(file)
   puts "\n\n--- #{file} ends here\n\n"
 end
 
+Cman.config['base_dir'] = '/home/test/repo'
 BASE_DIR = Cman.config['base_dir']
 
 class DummyOutput
@@ -31,16 +32,13 @@ class DummyOutput
 end
 
 RSpec.configure do |config|
-  # original_stderr = $stderr
   original_stdout = $stdout
 
   config.before(:all) do
-    # $stderr = nil
-    # $stdout = DummyOutput.instance
+    $stdout = DummyOutput.instance
   end
 
   config.after(:all) do
-    # $stderr = original_stderr
     $stdout = original_stdout
   end
 end

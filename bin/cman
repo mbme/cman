@@ -4,16 +4,15 @@ require 'cman/executor'
 require 'cman/logger'
 
 include Cman::Logger
-command = ARGV[0]
-unless Cman.respond_to?(command)
-  error "wrong command '#{command}'"
 
-  methods = Cman.methods(false).map { |s| s.to_s }.join ', '
-  error "must be one of #{methods}"
+begin
+  Cman.load_config
 
-  return 1
+  command = Cman::Executor.new ARGV[0]
+  command.execute(*ARGV[1..-1])
+
+  exit 0
+rescue => e
+  error e.message
+  exit 1
 end
-
-# TODO: handle command
-puts 'done'
-Cman.status

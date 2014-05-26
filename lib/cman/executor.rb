@@ -159,15 +159,15 @@ module Cman
 
     def initialize(command)
       unless COMMANDS.include? command
-        fail("wrong command #{command}, valid are #{COMMANDS.join ', '}")
+        fail "wrong command '#{command}', valid are #{COMMANDS.join ', '}"
       end
       @command = command
     end
 
     def execute(*args)
       send @command, *args
-    rescue ArgumentError => e
-      raise ExecutorError, "command #{@command}; #{e.message}"
+    rescue => e
+      raise "command #{@command}; #{e.message}"
     end
 
     private

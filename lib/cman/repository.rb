@@ -5,10 +5,15 @@ require 'cman/utils'
 
 # Here we have repository wrapper.
 module Cman
-  @@config = { 'base_dir' => '/home/test/repository' }
+  CMAN_CONFIG_PATH = "#{Dir.home}/.config/cman"
+  @@config = { 'base_dir' => nil }
 
   def self.config
     @@config
+  end
+
+  def self.load_config
+    @@config = JSON.parse File.read(CMAN_CONFIG_PATH)
   end
 
   # files repository
