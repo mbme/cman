@@ -43,7 +43,7 @@ module Cman
     end
 
     def install
-      fail("#{@repository}: #{@path} already installed") if installed?
+      fail("#{@repository.name}: #{@path} already installed") if installed?
 
       # backup if exists
       if File.exist?(@path) || Dir.exist?(@path)
@@ -54,7 +54,7 @@ module Cman
     end
 
     def uninstall
-      fail("#{@repository}: #{@path} not installed") unless installed?
+      fail("#{@repository.name}: #{@path} not installed") unless installed?
       FileUtils.rm @path
 
       # restore backup if exists

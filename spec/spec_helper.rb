@@ -36,7 +36,7 @@ RSpec.configure do |config|
 
   config.before(:all) do
     # $stderr = nil
-    $stdout = DummyOutput.instance
+    # $stdout = DummyOutput.instance
   end
 
   config.after(:all) do

@@ -138,6 +138,21 @@ describe Cman::Executor do
     File.symlink?(file2).should be_true
   end
 
+  it 'cannot install file if already installed' do
+    new_add.execute @repo_name
+
+    file1 = '/test/file1'
+    file2 = '/test/file2'
+    touch file1, file2
+
+    new_add.execute @repo_name, file1, file2
+
+    new_install.execute @repo_name, '1'
+    new_install.execute @repo_name, '1'
+
+    File.symlink?(file2).should be_true
+  end
+
   it 'can install repository' do
     new_add.execute @repo_name
 
@@ -167,7 +182,24 @@ describe Cman::Executor do
     new_add.execute @repo_name, file1, file2
 
     new_install.execute @repo_name, '1'
+    new_uninstall.execute @repo_name, '1'
 
-    File.symlink?(file2).should be_true
+    File.symlink?(file2).should be_false
+  end
+
+  it 'can uninstall repo' do
+    new_add.execute @repo_name
+
+    file1 = '/test/file1'
+    file2 = '/test/file2'
+    touch file1, file2
+
+    new_add.execute @repo_name, file1, file2
+
+    new_install.execute @repo_name
+    new_uninstall.execute @repo_name
+
+    File.symlink?(file1).should be_false
+    File.symlink?(file2).should be_false
   end
 end

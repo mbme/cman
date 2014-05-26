@@ -99,13 +99,22 @@ module Cman
       end
     end
 
+    def install_file(repo, id)
+      repo.get_record(id).install
+      1
+    rescue => e
+      error "cannot install #{id}: #{e.message}"
+      0
+    end
+
     def install_files(repo_name, ids)
       repo = Cman::Repository.read repo_name
       cleanup_ids repo, ids
 
       if dialog "#{repo_name}: install files?"
-        ids.each { |i| repo.get_record(i).install }
-        info "#{repo_name}: installed #{ids.length} files"
+        total = 0
+        ids.each { |i| total += install_file repo, i }
+        info "#{repo_name}: installed #{total} files"
       else
         info 'cancelled'
       end
@@ -116,6 +125,30 @@ module Cman
       ids = repo.records.map { |r| r.id }
       install_files repo_name, ids
     end
+
+    def uninstall_files(repo_name, ids)
+      repo = Cman::Repository.read repo_name
+      cleanup_ids repo, ids
+
+      if dialog "#{repo_name}: uninstall files?"
+        ids.each { |i| repo.get_record(i).uninstall }
+        info "#{repo_name}: uninstalled #{ids.length} files"
+      else
+        info 'cancelled'
+      end
+    end
+
+    def uninstall_repo(repo_name)
+      repo = Cman::Repository.read repo_name
+      ids = repo.records.map { |r| r.id }
+      uninstall_files repo_name, ids
+    end
+  end
+
+  def uninstall_repo(repo_name)
+    repo = Cman::Repository.read repo_name
+    ids = repo.records.map { |r| r.id }
+    uninstall_files repo_name, ids
   end
 
   # command executor
@@ -163,8 +196,12 @@ module Cman
       end
     end
 
-    def uninstall(repo, *args)
-      info 'uninstalling'
+    def uninstall(repo_name, *args)
+      if args.length > 0
+        uninstall_files repo_name, args.to_set
+      else
+        uninstall_repo repo_name
+      end
     end
 
     def stats(repo_name = nil)
