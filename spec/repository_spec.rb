@@ -55,14 +55,14 @@ describe Cman::Repository do
     @repo.create
     @repo.exist?.should be_true
 
-    @repo.delete
+    @repo.remove
     @repo.exist?.should be_false
   end
 
   it "cannot be removed if doesn't exist" do
     @repo.exist?.should be_false
 
-    expect { @repo.delete }.to raise_error
+    expect { @repo.remove }.to raise_error
   end
 
   it 'can add new file' do

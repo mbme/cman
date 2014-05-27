@@ -48,9 +48,9 @@ module Cman
 
     def remove_repo(repo_name)
       if dialog "#{repo_name}: remove repository?"
-        Cman::Repository.read(repo_name).delete
+        Cman::Repository.read(repo_name).remove
 
-        info "#{repo_name}: deleted"
+        info "#{repo_name}: removed"
       else
         info 'cancelled'
       end
@@ -87,13 +87,22 @@ module Cman
       end
     end
 
+    def remove_file(repo, id)
+      repo.remove_record id
+      1
+    rescue => e
+      error "cannot remove #{id}: #{e.message}"
+      0
+    end
+
     def remove_files(repo_name, ids)
       repo = Cman::Repository.read repo_name
       cleanup_ids repo, ids
 
       if dialog "#{repo_name}: remove files?"
-        ids.each { |i| repo.remove_record i }
-        info "#{repo_name}: deleted #{ids.length} files"
+        total = 0
+        ids.each { |i| total += remove_file repo, i }
+        info "#{repo_name}: removed #{total} files"
       else
         info 'cancelled'
       end

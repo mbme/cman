@@ -76,8 +76,9 @@ module Cman
       end
     end
 
-    def delete
+    def remove
       fail("#{@name}: can't remove repository: doesn't exists") unless exist?
+      @records.each { |rec| remove_record rec.id }
       FileUtils.rm_r path
     end
 
@@ -102,6 +103,8 @@ module Cman
 
     def remove_record(id)
       rec = get_record id, failIfNil: true
+
+      rec.uninstall if rec.installed?
 
       @records.delete rec
       FileUtils.rm_r rec.repo_path

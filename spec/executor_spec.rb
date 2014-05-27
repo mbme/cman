@@ -86,8 +86,18 @@ describe Cman::Executor do
   it 'can remove repository' do
     new_add.execute @repo_name
 
+    file1 = '/test/file1'
+    file2 = '/test/file2'
+    touch file1, file2
+
+    new_add.execute @repo_name, file1, file2
+
+    new_install.execute @repo_name, '0'
+    File.symlink?(file1).should be_true
+
     new_remove.execute @repo_name
 
+    File.symlink?(file1).should be_false
     path = File.join(BASE_DIR, @repo_name)
     Dir.exist?(path).should be_false
   end
@@ -104,8 +114,11 @@ describe Cman::Executor do
     touch file1, file2
 
     new_add.execute @repo_name, file1, file2
+    new_install.execute @repo_name, '1'
+    File.symlink?(file2).should be_true
 
     new_remove.execute @repo_name, '1', 'test' # 1 is repo file id
+    File.symlink?(file2).should be_false
 
     path = Pathname(File.join(BASE_DIR, @repo_name))
 
