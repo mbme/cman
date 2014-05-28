@@ -8,6 +8,10 @@ module Cman
     filepath.start_with?(Dir.home) ? filepath.sub!(Dir.home, '~') : filepath
   end
 
+  def self.full_path(filepath)
+    filepath.start_with?('~') ? filepath.sub!('~', Dir.home) : filepath
+  end
+
   # item record
   class Record
     def self.repo_file(rec)
@@ -18,12 +22,12 @@ module Cman
       Record.new hash['path'], id: hash['id'], repository: repository
     end
 
-    attr_accessor :id, :path, :repository
+    attr_accessor :id, :repository
 
     def initialize(path, id: -1, repository: nil)
       @id = id
       @repository = repository
-      @path = Cman.simplify_path path
+      @path = Cman.simplify_path path.dup
     end
 
     def repo_file
@@ -34,40 +38,44 @@ module Cman
       File.join @repository.path, repo_file
     end
 
+    def path
+      Cman.full_path @path.dup
+    end
+
     def backup_path
-      name = File.basename(@path) + BACKUP_EXT
+      name = File.basename(path) + BACKUP_EXT
 
       name = name[0] == '.' ? name : '.' + name
 
-      File.join File.dirname(@path), name
+      File.join File.dirname(path), name
     end
 
     def install
-      fail("#{@repository.name}: #{@path} already installed") if installed?
+      fail("#{@repository.name}: #{path} already installed") if installed?
 
       # backup if exists
-      if File.exist?(@path) || Dir.exist?(@path)
-        FileUtils.mv @path, backup_path
+      if File.exist?(path) || Dir.exist?(path)
+        FileUtils.mv path, backup_path
       end
 
-      FileUtils.ln_s repo_path, @path
+      FileUtils.ln_s repo_path, path
     end
 
     def uninstall
-      fail("#{@repository.name}: #{@path} not installed") unless installed?
-      FileUtils.rm @path
+      fail("#{@repository.name}: #{path} not installed") unless installed?
+      FileUtils.rm path
 
       # restore backup if exists
       backup = backup_path
-      FileUtils.mv backup, @path if File.exist?(backup) or Dir.exist?(backup)
+      FileUtils.mv backup, path if File.exist?(backup) or Dir.exist?(backup)
     end
 
     def installed?
-      File.symlink?(@path) && File.readlink(@path) == repo_path
+      File.symlink?(path) && File.readlink(path) == repo_path
     end
 
     def ==(other)
-      @path == other.path
+      path == other.path
     end
 
     def to_json(*_)
@@ -78,7 +86,7 @@ module Cman
     end
 
     def to_s
-      "#{@id}  #{@path}"
+      "#{@id}  #{path}"
     end
   end
 end

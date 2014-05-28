@@ -33,3 +33,5 @@ TODO: Write usage instructions here
 1. manage files owner, group etc.
 2. possibility to encrypt some files
 3. process arguments
+4. check on startup if all files are valid
+5. add possibility to remove backups of installed files

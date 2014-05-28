@@ -1,4 +1,6 @@
 require 'pathname'
+require 'set'
+
 require 'cman/logger'
 require 'cman/repository'
 require 'cman/utils'
@@ -176,7 +178,7 @@ module Cman
     def execute(*args)
       send @command, *args
     rescue => e
-      raise "command #{@command}; #{e.message}"
+      raise "command #{@command}: #{e.message}"
     end
 
     private

@@ -31,7 +31,7 @@ module Cman
       path = Pathname(file).cleanpath
 
       unless path.absolute?
-        base = Pathname(ENV['PATH']) or Pathname.pwd
+        base = Pathname(ENV['PWD']) or Pathname.pwd
         path = (base + path).cleanpath
       end
 

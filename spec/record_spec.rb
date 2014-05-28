@@ -16,7 +16,8 @@ describe Cman::Record do
     file = File.join Dir.home, name
     rec = new file
 
-    rec.path.should eq "~/#{name}"
+    rec.path.should eq "#{Dir.home}/#{name}"
+    rec.instance_variable_get(:@path).should eq "~/#{name}"
 
     file = "/other/#{name}"
     rec = new file

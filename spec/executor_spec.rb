@@ -9,7 +9,7 @@ describe Cman::Executor do
 
   def new(command, mock)
     comm = Cman::Executor.new command
-    comm.should_receive(:gets).and_return('y') if mock
+    $stdin.should_receive(:gets).and_return('y') if mock
     comm
   end
 

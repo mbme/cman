@@ -31,7 +31,7 @@ module Cman
       resp = ''
       until %w( y n ).include? resp
         info msg + ' (y/n)'
-        resp = gets
+        resp = $stdin.gets.strip
       end
 
       resp == 'y'
