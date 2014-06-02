@@ -1,17 +1,42 @@
 #!/usr/bin/env ruby
 
+require 'docopt'
+
 require 'cman/executor'
 require 'cman/logger'
+require 'cman/version'
 
 include Cman::Logger
+
+cman = 'cman'
+doc = <<DOCOPT
+Configs MANager
+
+Usage:
+    #{cman} add    <repository> [<files>...]
+    #{cman} remove <repository> [<record_ids>...]
+    #{cman} (install|uninstall) <repository> [<record_ids>...]
+    #{cman} stats  [<repository>]
+
+Options:
+    -h --help     Show this screen.
+    --version     Show version.
+
+DOCOPT
 
 begin
   Cman.load_config
 
-  command = Cman::Executor.new ARGV[0]
-  command.execute(*ARGV[1..-1])
+  opts = Docopt.docopt(doc, version: Cman::VERSION)
+
+  command_name = opts.find { |_, v| v == true }.first
+  command = Cman::Executor.new command_name
+
+  command.execute opts
 
   exit 0
+rescue Docopt::Exit => e
+  print e.message
 rescue => e
   error e.message
   exit 1

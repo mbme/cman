@@ -37,12 +37,16 @@ module Cman
       resp == 'y'
     end
 
+    def print(msg)
+      puts msg
+    end
+
     private
 
     def log(level, msg)
       level == 0 && !@@debug && return
 
-      puts "#{LEVELS[level]}   #{msg}"
+      print "#{LEVELS[level]}   #{msg}"
     end
   end
 end

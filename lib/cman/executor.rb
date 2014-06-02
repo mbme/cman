@@ -175,51 +175,57 @@ module Cman
       @command = command
     end
 
-    def execute(*args)
-      send @command, *args
+    def execute(opts)
+      @opts = opts
+
+      @repo_name = opts['<repository>']
+      @ids = opts['<record_ids>'].to_set
+
+      send @command
     rescue => e
       raise "command #{@command}: #{e.message}"
     end
 
     private
 
-    def add(repo_name, *args)
-      if args.length > 0
-        add_files repo_name, args.to_set
+    def add
+      files = @opts['<files>'].to_set
+      if files.length > 0
+        add_files @repo_name, files
       else
-        add_repo repo_name
+        add_repo @repo_name
       end
     end
 
-    def remove(repo_name, *args)
-      if args.length > 0
-        remove_files repo_name, args.to_set
+    def remove
+      if @ids.length > 0
+        remove_files @repo_name, @ids
       else
-        remove_repo repo_name
+        remove_repo @repo_name
       end
     end
 
-    def install(repo_name, *args)
-      if args.length > 0
-        install_files repo_name, args.to_set
+    def install
+      if @ids.length > 0
+        install_files @repo_name, @ids
       else
-        install_repo repo_name
+        install_repo @repo_name
       end
     end
 
-    def uninstall(repo_name, *args)
-      if args.length > 0
-        uninstall_files repo_name, args.to_set
+    def uninstall
+      if @ids.length > 0
+        uninstall_files @repo_name, @ids
       else
-        uninstall_repo repo_name
+        uninstall_repo @repo_name
       end
     end
 
-    def stats(repo_name = nil)
-      if repo_name.nil?
+    def stats
+      if @repo_name.nil?
         general_stats
       else
-        repo_stats repo_name
+        repo_stats @repo_name
       end
     end
   end
