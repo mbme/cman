@@ -40,10 +40,16 @@ module Cman
       end
     end
 
+    def self.valid_name?(name)
+      not name.start_with? '.'
+    end
+
     attr_reader :records, :name
     save_after :create, :add_record, :remove_record
 
     def initialize(name)
+      fail("#{name}: bad repository name") unless Repository.valid_name? name
+
       @name = name
       @records = []
     end

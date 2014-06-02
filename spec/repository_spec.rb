@@ -55,6 +55,10 @@ describe Cman::Repository do
     expect { repo.create }.to raise_error
   end
 
+  it 'cannot be created with wrong name' do
+    expect { new '.test' }.to raise_error
+  end
+
   it 'cannot be created if dir already exists' do
     FileUtils.mkdir File.join(BASE_DIR, @repo_name)
 

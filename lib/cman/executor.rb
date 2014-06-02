@@ -64,6 +64,7 @@ module Cman
       info "home dir: #{base_dir}"
 
       repos = Dir.entries(base_dir).select do |f|
+        next unless Cman::Repository.valid_name? f
         Cman::Repository.new(f).exist?
       end
 

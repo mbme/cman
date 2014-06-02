@@ -34,4 +34,3 @@ TODO: Write usage instructions here
 2. possibility to encrypt some files
 3. check on startup if all files are valid
 4. add possibility to remove backups of installed files
-5. must not add 'hidden' repositories
