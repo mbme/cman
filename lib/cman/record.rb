@@ -14,10 +14,6 @@ module Cman
 
   # item record
   class Record
-    def self.repo_file(rec)
-      rec.path.gsub '/', ':'
-    end
-
     def self.parse(hash, repository)
       Record.new hash['path'], id: hash['id'], repository: repository
     end
@@ -31,7 +27,7 @@ module Cman
     end
 
     def repo_file
-      Record.repo_file self
+      @path.gsub('/', ':')
     end
 
     def repo_path

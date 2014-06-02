@@ -75,7 +75,7 @@ describe Cman::Repository do
 
     rec.repository.should eq @repo
     rec.id.should eq 0
-    rec.repo_file.should eq Cman::Record.repo_file rec
+    rec.repo_file.should eq ':test:file'
 
     File.file?(file_path).should be_true
     File.file?(rec.repo_path).should be_true
