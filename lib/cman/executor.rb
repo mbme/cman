@@ -60,7 +60,15 @@ module Cman
 
     def general_stats
       info 'stats:'
-      info "home dir: #{Cman.config['base_dir']}"
+      base_dir = Cman.config['base_dir']
+      info "home dir: #{base_dir}"
+
+      repos = Dir.entries(base_dir).select do |f|
+        Cman::Repository.new(f).exist?
+      end
+
+      info "repositories: #{repos.length}"
+      repos.each { |repo| info "#{repo}" }
     end
 
     def repo_stats(repo_name)

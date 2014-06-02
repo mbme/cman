@@ -57,7 +57,7 @@ module Cman
     end
 
     def exist?
-      File.directory?(path)
+      File.directory?(path) && File.exist?(config_path)
     end
 
     def create

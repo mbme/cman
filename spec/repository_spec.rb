@@ -12,13 +12,17 @@ describe Cman::Repository do
     Cman::Repository.new name
   end
 
-  it "exist when it's dir exist" do
+  it "exist when it's dir exist and config exists" do
     FileUtils.mkdir File.join(BASE_DIR, @repo_name)
+    touch @repo.config_path
 
     @repo.exist?.should be_true
   end
 
-  it "doesn't exist when its dir doesn't exist" do
+  it "doesn't exist when its dir or config doesn't exist" do
+    @repo.exist?.should be_false
+
+    FileUtils.mkdir File.join(BASE_DIR, @repo_name)
     @repo.exist?.should be_false
   end
 
@@ -46,6 +50,13 @@ describe Cman::Repository do
 
   it 'cannot be created if already exist' do
     @repo.create
+
+    repo = new @repo_name
+    expect { repo.create }.to raise_error
+  end
+
+  it 'cannot be created if dir already exists' do
+    FileUtils.mkdir File.join(BASE_DIR, @repo_name)
 
     repo = new @repo_name
     expect { repo.create }.to raise_error
