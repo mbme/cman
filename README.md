@@ -18,7 +18,7 @@ $ gem install cman
 
 ## Usage
 
-TODO: Write usage instructions here
+use `cman -h` to see usage instructions
 
 ## Contributing
 
@@ -33,4 +33,6 @@ TODO: Write usage instructions here
 1. manage files owner, group etc.
 2. possibility to encrypt some files
 3. check on startup if all files are valid
-4. add possibility to remove backups of installed files
+4. add possibility to remove backups of installed files (or option not to create backups)
+5. improve stats with info about installed state, backups etc.
+6. ask to create unknown repo when adding files
